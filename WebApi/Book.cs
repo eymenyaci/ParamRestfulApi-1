@@ -2,16 +2,15 @@ using System;
 
 namespace WebApi
 {
-    public class Book
+    public class Book : AutoID
     {
-        public int Id { get; set; }
         public string BookName { get; set; }
 
         public string Author { get; set; }
         public int PageCount { get; set; }
     }
 
-    public class Log
+    public class Log : AutoID
     {
         public DateTime dateTime { get; set; }
         public string text { get; set; }
