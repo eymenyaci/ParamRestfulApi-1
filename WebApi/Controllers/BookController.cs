@@ -42,7 +42,7 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete([FromQuery] int id)
         {
             var deleteById = _books.FirstOrDefault(x => x.Id == id);
             if (deleteById == null)
