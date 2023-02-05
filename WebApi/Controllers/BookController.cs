@@ -16,12 +16,13 @@ namespace WebApi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
+            // Is any book ?
             if (!_books.Any())
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Data Not Found!" });
                 return BadRequest();
             }
-
+            //added log information
             _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = _books.Count() + " Data Listed" });
             return Ok(_books);
         }
@@ -29,6 +30,7 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
+            // book get by id
             var bookById = _books.FirstOrDefault(x => x.Id == id);
             if (bookById == null)
             {
@@ -49,6 +51,7 @@ namespace WebApi.Controllers
                 return NotFound();
             }
             _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Value " + deleteById.Id + " has been deleted" });
+            // delete book by id
             _books.Remove(deleteById);
             return NoContent();
         }
@@ -56,6 +59,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Book book)
         {
+            // model is valid ?
             if (!ModelState.IsValid)
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Invalid object request!" });
@@ -70,16 +74,19 @@ namespace WebApi.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Book book)
         {
+            // is any book id
             if (id != book.Id)
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Invalid object id!" });
                 return BadRequest();
             }
+            // is any valid state
             if (!ModelState.IsValid)
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Invalid object request!" });
                 return BadRequest(ModelState);
             }
+            // book get by id
             var updatedBook = _books.FirstOrDefault(x => x.Id == id);
             if (updatedBook == null)
             {
