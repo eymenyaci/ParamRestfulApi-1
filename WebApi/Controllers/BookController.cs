@@ -93,6 +93,12 @@ namespace WebApi.Controllers
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Given object not found!" });
                 return NotFound();
             }
+            else
+            {
+                updatedBook.Id = book.Id;
+                updatedBook.BookName = book.BookName;
+                updatedBook.Author = book.Author;
+            }
             _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Given object succesfuly updated!" });
             updatedBook = book;
             return NoContent();
