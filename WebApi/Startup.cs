@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using WebApi.Services;
 
 namespace WebApi
 {
@@ -28,10 +29,12 @@ namespace WebApi
         {
 
             services.AddControllers();
+            services.AddScoped<IBookService,BookService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
             });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

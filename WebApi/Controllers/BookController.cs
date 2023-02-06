@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Services;
 
 
 namespace WebApi.Controllers
@@ -10,28 +11,35 @@ namespace WebApi.Controllers
     [Route("[controller]")]
     public class BookController : ControllerBase
     {
-        List<Book> _books = new List<Book>();
         List<Log> _logs = new List<Log>();
+
+        private readonly IBookService _bookService;
+
+        public BookController(IBookService bookService)
+        {
+            _bookService = bookService;
+        }
 
         [HttpGet]
         public IActionResult Get()
         {
+            var books = _bookService.GetAllBooks();
             // Is any book ?
-            if (!_books.Any())
+            if (!books.Any())
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Data Not Found!" });
                 return BadRequest();
             }
             //added log information
-            _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = _books.Count() + " Data Listed" });
-            return Ok(_books);
+            _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = books.Count() + " Data Listed" });
+            return Ok(books);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
             // book get by id
-            var bookById = _books.FirstOrDefault(x => x.Id == id);
+            var bookById = _bookService.GetBookById(id);
             if (bookById == null)
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "No value with id of " + id + " !" });
@@ -44,7 +52,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete([FromQuery] int id)
         {
-            var deleteById = _books.FirstOrDefault(x => x.Id == id);
+            var deleteById = _bookService.GetBookById(id);
             if (deleteById == null)
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "No value with id of " + id + " !" });
@@ -52,7 +60,7 @@ namespace WebApi.Controllers
             }
             _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Value " + deleteById.Id + " has been deleted" });
             // delete book by id
-            _books.Remove(deleteById);
+            _bookService.DeleteBook(id);
             return NoContent();
         }
 
@@ -65,21 +73,14 @@ namespace WebApi.Controllers
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Invalid object request!" });
                 return BadRequest(ModelState);
             }
-
             _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Data successfully added!" });
-            _books.Add(book);
+            _bookService.CreateBook(book);
             return CreatedAtAction("Get", new { id = book.Id }, book);
         }
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Book book)
         {
-            // is any book id
-            if (id != book.Id)
-            {
-                _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Invalid object id!" });
-                return BadRequest();
-            }
             // is any valid state
             if (!ModelState.IsValid)
             {
@@ -87,20 +88,15 @@ namespace WebApi.Controllers
                 return BadRequest(ModelState);
             }
             // book get by id
-            var updatedBook = _books.FirstOrDefault(x => x.Id == id);
+            var updatedBook = _bookService.GetBookById(book.Id);
             if (updatedBook == null)
             {
                 _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Given object not found!" });
                 return NotFound();
             }
-            else
-            {
-                updatedBook.Id = book.Id;
-                updatedBook.BookName = book.BookName;
-                updatedBook.Author = book.Author;
-            }
+            
+            _bookService.UpdateBook(book);
             _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Given object succesfuly updated!" });
-            updatedBook = book;
             return NoContent();
 
         }
