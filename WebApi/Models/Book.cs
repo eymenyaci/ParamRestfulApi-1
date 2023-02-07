@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApi
 {
@@ -10,8 +11,10 @@ namespace WebApi
         public int PageCount { get; set; }
     }
 
-    public class Log : AutoID
+    public class Log 
     {
+        // public int LogId { get; set; }
+        public int Id { get; set; }
         public DateTime dateTime { get; set; }
         public string text { get; set; }
     }

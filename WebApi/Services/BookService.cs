@@ -8,46 +8,46 @@ namespace WebApi.Services
     {
         public Book CreateBook(Book book)
         {
-            using (var BookDbContext = new BookDbContext())
+            using (var bookDbContext = new BookDbContext())
             {
-                bool isAnyBook = BookDbContext.Books.Any(x => x.Id == book.Id);
+                bool isAnyBook = bookDbContext.Books.Any(x => x.Id == book.Id);
                 if (!isAnyBook)
-                    BookDbContext.Books.Add(book);
-                BookDbContext.SaveChanges();
+                    bookDbContext.Books.Add(book);
+                bookDbContext.SaveChanges();
                 return book;
             }
         }
 
         public void DeleteBook(int id)
         {
-            using (var BookDbContext = new BookDbContext())
+            using (var bookDbContext = new BookDbContext())
             {
                 var deletedBook = GetBookById(id);
                 if (deletedBook != null)
-                    BookDbContext.Books.Remove(deletedBook);
-                BookDbContext.SaveChanges();
+                    bookDbContext.Books.Remove(deletedBook);
+                bookDbContext.SaveChanges();
             }
         }
 
         public List<Book> GetAllBooks()
         {
-            using (var BookDbContext = new BookDbContext())
+            using (var bookDbContext = new BookDbContext())
             {
-                return BookDbContext.Books.ToList();
+                return bookDbContext.Books.ToList();
             }
         }
 
         public Book GetBookById(int id)
         {
-            using (var BookDbContext = new BookDbContext())
+            using (var bookDbContext = new BookDbContext())
             {
-                return BookDbContext.Books.FirstOrDefault(x => x.Id == id);
+                return bookDbContext.Books.FirstOrDefault(x => x.Id == id);
             }
         }
 
         public Book UpdateBook(Book book)
         {
-            using (var BookDbContext = new BookDbContext())
+            using (var bookDbContext = new BookDbContext())
             {
                 var updatedBook = GetBookById(book.Id);
                 if (updatedBook != null)
@@ -56,8 +56,8 @@ namespace WebApi.Services
                     updatedBook.BookName = book.BookName;
                     updatedBook.PageCount = book.PageCount;
                 }
-                BookDbContext.Books.Update(updatedBook);
-                BookDbContext.SaveChanges();
+                bookDbContext.Books.Update(updatedBook);
+                bookDbContext.SaveChanges();
                 return updatedBook;
             }
         }

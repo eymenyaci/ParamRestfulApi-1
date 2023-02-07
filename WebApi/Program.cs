@@ -18,6 +18,12 @@ namespace WebApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+            //We send our logs to the debug and console side.
+            .ConfigureLogging(conf => 
+            {
+                conf.ClearProviders();
+                conf.AddDebug();
+            })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

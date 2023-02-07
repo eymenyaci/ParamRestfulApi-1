@@ -11,8 +11,6 @@ namespace WebApi.Controllers
     [Route("[controller]")]
     public class BookController : ControllerBase
     {
-        List<Log> _logs = new List<Log>();
-
         private readonly IBookService _bookService;
 
         public BookController(IBookService bookService)
@@ -20,6 +18,14 @@ namespace WebApi.Controllers
             _bookService = bookService;
         }
 
+        [HttpGet("test/custom")]
+        public string ExceptionTest()
+        {
+            int a = 0;
+            int b = 5 / a;
+
+            return "OK";
+        }
         [HttpGet]
         public IActionResult Get()
         {
@@ -27,11 +33,8 @@ namespace WebApi.Controllers
             // Is any book ?
             if (!books.Any())
             {
-                _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Data Not Found!" });
                 return BadRequest();
             }
-            //added log information
-            _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = books.Count() + " Data Listed" });
             return Ok(books);
         }
 
@@ -42,10 +45,8 @@ namespace WebApi.Controllers
             var bookById = _bookService.GetBookById(id);
             if (bookById == null)
             {
-                _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "No value with id of " + id + " !" });
                 return NotFound();
             }
-            _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Data with an Id of " + id + " was returned!" });
             return Ok(bookById);
         }
 
@@ -55,10 +56,8 @@ namespace WebApi.Controllers
             var deleteById = _bookService.GetBookById(id);
             if (deleteById == null)
             {
-                _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "No value with id of " + id + " !" });
                 return NotFound();
             }
-            _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Value " + deleteById.Id + " has been deleted" });
             // delete book by id
             _bookService.DeleteBook(id);
             return NoContent();
@@ -70,10 +69,8 @@ namespace WebApi.Controllers
             // model is valid ?
             if (!ModelState.IsValid)
             {
-                _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Invalid object request!" });
                 return BadRequest(ModelState);
             }
-            _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Data successfully added!" });
             _bookService.CreateBook(book);
             return CreatedAtAction("Get", new { id = book.Id }, book);
         }
@@ -84,19 +81,16 @@ namespace WebApi.Controllers
             // is any valid state
             if (!ModelState.IsValid)
             {
-                _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Invalid object request!" });
                 return BadRequest(ModelState);
             }
             // book get by id
             var updatedBook = _bookService.GetBookById(book.Id);
             if (updatedBook == null)
             {
-                _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Given object not found!" });
                 return NotFound();
             }
             
             _bookService.UpdateBook(book);
-            _logs.Add(new Log() { dateTime = DateTime.UtcNow, text = "Given object succesfuly updated!" });
             return NoContent();
 
         }

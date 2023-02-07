@@ -10,8 +10,8 @@ using WebApi;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(BookDbContext))]
-    [Migration("20230205213637_bookMig1")]
-    partial class bookMig1
+    [Migration("20230207161117_FirstMigration")]
+    partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,9 +24,7 @@ namespace WebApi.Migrations
             modelBuilder.Entity("WebApi.Book", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasColumnType("int");
 
                     b.Property<string>("Author")
                         .HasColumnType("nvarchar(max)");
