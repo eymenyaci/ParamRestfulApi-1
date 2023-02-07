@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebApi
+namespace WebApi.Models.Entity
 {
     public class Book : AutoID
     {
@@ -11,7 +11,7 @@ namespace WebApi
         public int PageCount { get; set; }
     }
 
-    public class Log 
+    public class Log
     {
         // public int LogId { get; set; }
         public int Id { get; set; }

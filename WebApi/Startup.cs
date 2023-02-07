@@ -10,10 +10,14 @@ using Microsoft.Extensions.Hosting;
 using WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.IdentityModel.Tokens;
 
 
 using Microsoft.OpenApi.Models;
 using WebApi.Services;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
 
 namespace WebApi
 {
@@ -26,6 +30,7 @@ namespace WebApi
 
         public IConfiguration Configuration { get; }
 
+        
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -33,13 +38,30 @@ namespace WebApi
             services.AddControllers();
             services.AddScoped<IBookService, BookService>();
             services.AddSingleton<ILogService, LogService>();
+            services.AddScoped<IIdentityService, IdentityService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
             });
-
+            var issuer = Configuration.GetSection("JwtConfig").GetValue<string>("Issuer");
+            var audience = Configuration.GetSection("JwtConfig").GetValue<string>("Audience");
+            var signingKey = Configuration.GetSection("JwtConfig").GetValue<string>("SigningKey");
+            IdentityModelEventSource.ShowPII = true;
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
+                };
+            });
         }
-
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -55,6 +77,8 @@ namespace WebApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

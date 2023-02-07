@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using WebApi;
+using WebApi.Models.Context;
+using WebApi.Models.Entity;
 
 public class LoggingMiddleware
 {
