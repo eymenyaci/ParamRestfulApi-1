@@ -1,4 +1,4 @@
-﻿# Project: Best Practices Middleware, Extension Methods, Logging, and JWT Token Usage
+﻿# Project: Best Practices Middleware, Extension Methods, Logging, Mediator and JWT Token Usage
 
 This project implements best practices for using middleware, extension methods, logging, mediator, and JWT token authentication in an ASP.NET Core project.
 
