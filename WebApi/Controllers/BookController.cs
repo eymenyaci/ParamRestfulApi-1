@@ -11,6 +11,7 @@ using WebApi.Dto;
 using WebApi.Extensions;
 using WebApi.Interfaces;
 using WebApi.Models.Entity;
+using WebApi.Validations;
 
 namespace WebApi.Controllers
 {
@@ -19,12 +20,13 @@ namespace WebApi.Controllers
     [Authorize]
     public class BookController : ControllerBase
     {
-        
+        private readonly BookDtoValidator _validator;
         private readonly IMediator _mediator;
 
         public BookController(IMediator mediator)
         {
             _mediator = mediator;
+            _validator = new BookDtoValidator();
         }
 
         [SwaggerOperation(summary: "Get entities from Book", OperationId = "GetBooks")]
@@ -47,11 +49,17 @@ namespace WebApi.Controllers
         {
             // book get by id
             var book = await _mediator.Send(new GetBookQuery { Id = id });
+            var validationResult = _validator.Validate(book);
+            if (!validationResult.IsValid)
+            {
+                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                return BadRequest(errorMessage);
+            }
             if (book == null)
             {
                 return NotFound();
             }
-            return Ok(book);    
+            return Ok(book);
         }
 
         [SwaggerOperation(summary: "Delete entity from Book", OperationId = "DeleteBook")]
@@ -59,9 +67,11 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Delete([FromQuery] int id)
         {
             var book = await _mediator.Send(new GetBookQuery { Id = id });
+            var validationResult = _validator.Validate(book);
             if (book == null)
             {
-                return NotFound();
+                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                return NotFound(errorMessage);
             }
             await _mediator.Send(new DeleteBookCommand() { Model = book });
             return Ok();
@@ -71,37 +81,40 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] BookDto model)
         {
-            // model is valid ?
-            if (ModelState.IsValid)
+            var validationResult = _validator.Validate(model);
+            if (!validationResult.IsValid)
             {
-                model = await _mediator.Send(new AddBookingCommand() { Model = model });
-                return Ok(model);
+                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                return BadRequest(errorMessage);
             }
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new AddBookingCommand() { Model = model });
+            return Ok(model);
+
         }
 
         [SwaggerOperation(summary: "Update entity in Book", OperationId = "UpdateBook")]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] BookDto model)
         {
-            // is any valid state
+            
             var updatedBook = await _mediator.Send(new GetBookQuery() { Id = model.Id });
+            var validationResult = _validator.Validate(model);
+
             if (updatedBook == null)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            if (!validationResult.IsValid)
             {
-                model = await _mediator.Send(new UpdateBookCommand() { Model = model }); 
-                return Ok (model);
+                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                return BadRequest(errorMessage);
             }
+            model = await _mediator.Send(new UpdateBookCommand() { Model = model });
+            return Ok(model);
 
-            return BadRequest(ModelState);
-            
 
         }
 
-        
+
     }
 }
