@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
 
 
-namespace WebApi.Services
+namespace WebApi.Interfaces
 {
     public interface IIdentityService
     {
-        string Login(string userName,string password);
+        string Login(string userName, string password);
 
         bool ValidateToken(string token);
     }

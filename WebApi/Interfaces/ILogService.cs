@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebApi.Models.Entity;
 
-namespace WebApi.Services
+namespace WebApi.Interfaces
 {
     public interface ILogService
-    { 
+    {
         Task<Log> CreateLog(Log log);
     }
 }

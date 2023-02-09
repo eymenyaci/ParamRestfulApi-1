@@ -10,8 +10,8 @@ using WebApi.Models.Context;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(BookDbContext))]
-    [Migration("20230207161117_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20230209160937_mig1")]
+    partial class mig1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace WebApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.0");
 
-            modelBuilder.Entity("WebApi.Book", b =>
+            modelBuilder.Entity("WebApi.Models.Entity.Book", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -40,7 +40,7 @@ namespace WebApi.Migrations
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("WebApi.Log", b =>
+            modelBuilder.Entity("WebApi.Models.Entity.Log", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

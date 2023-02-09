@@ -11,13 +11,17 @@ using WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.IdentityModel.Tokens;
-
-
+using AutoMapper;
 using Microsoft.OpenApi.Models;
 using WebApi.Services;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using WebApi.Interfaces;
+using MediatR;
+using WebApi.Mapper;
+using WebApi.Dto;
+using WebApi.Models.Entity;
 
 namespace WebApi
 {
@@ -39,6 +43,14 @@ namespace WebApi
             services.AddScoped<IBookService, BookService>();
             services.AddSingleton<ILogService, LogService>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddMediatR(typeof(Startup));
+            services.AddAutoMapper(typeof(AutoMapperConfig));
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Book, BookDto>();
+                cfg.CreateMap<BookDto, Book>();
+            });
+            AutoMapperConfig.Init(mapperConfig);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });

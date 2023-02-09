@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Builder;
+using WebApi.Interfaces;
+using WebApi.Models.Entity;
+using WebApi.Extensions;
 
 namespace WebApi.Middlewares
 {
@@ -10,10 +13,13 @@ namespace WebApi.Middlewares
     {
         private readonly RequestDelegate next;
         private readonly ILogger<ExceptionHandlerMiddleware> logger;
-        public ExceptionHandlerMiddleware(RequestDelegate Next, ILogger<ExceptionHandlerMiddleware> Logger)
+        private readonly ILogService _logService;
+
+        public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger, ILogService logService)
         {
-            next = Next;
-            logger = Logger;
+            this.next = next;
+            this.logger = logger;
+            _logService = logService;
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -26,7 +32,7 @@ namespace WebApi.Middlewares
             catch (Exception ex)
             {
                 //error handling done here
-                logger.LogError(ex.Message);
+                logger.LogError(ex.Message + "Path : " + httpContext.Request.Path);
 
             }
         }

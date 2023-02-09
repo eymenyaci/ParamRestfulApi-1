@@ -7,6 +7,7 @@ using System;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Security.Authentication;
+using WebApi.Interfaces;
 
 namespace WebApi.Services
 {

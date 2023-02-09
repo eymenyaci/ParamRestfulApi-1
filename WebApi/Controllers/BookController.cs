@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+using WebApi.Commands.Model.Book;
+using WebApi.Dto;
 using WebApi.Extensions;
+using WebApi.Interfaces;
 using WebApi.Models.Entity;
-using WebApi.Services;
-
 
 namespace WebApi.Controllers
 {
@@ -15,136 +19,89 @@ namespace WebApi.Controllers
     [Authorize]
     public class BookController : ControllerBase
     {
-        private readonly IBookService _bookService;
+        
+        private readonly IMediator _mediator;
 
-        public BookController(IBookService bookService)
+        public BookController(IMediator mediator)
         {
-            _bookService = bookService;
+            _mediator = mediator;
         }
-        /// <summary>
-        /// Get All Book values
-        /// </summary>
-        /// <returns></returns>
+
+        [SwaggerOperation(summary: "Get entities from Book", OperationId = "GetBooks")]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var books = _bookService.GetAllBooks();
-            // Is any book ?
-            if (!books.Any())
+            var bookList = await _mediator.Send(new GetBookListQuery());
+            //Is any book ?
+            if (!bookList.Any())
             {
                 return BadRequest();
             }
-            return Ok(books);
+            return Ok(bookList);
+
         }
 
-        /// <summary>
-        /// Get book by id 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        [SwaggerOperation(summary: "Get entity from Book by id", OperationId = "GetBookById")]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             // book get by id
-            var bookById = _bookService.GetBookById(id);
-            if (bookById == null)
+            var book = await _mediator.Send(new GetBookQuery { Id = id });
+            if (book == null)
             {
                 return NotFound();
             }
-            return Ok(bookById);
+            return Ok(book);    
         }
 
-        /// <summary>
-        /// Delete book
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpDelete("{id}")]
-        public IActionResult Delete([FromQuery] int id)
+        [SwaggerOperation(summary: "Delete entity from Book", OperationId = "DeleteBook")]
+        [HttpDelete]
+        public async Task<IActionResult> Delete([FromQuery] int id)
         {
-            var deleteById = _bookService.GetBookById(id);
-            if (deleteById == null)
+            var book = await _mediator.Send(new GetBookQuery { Id = id });
+            if (book == null)
             {
                 return NotFound();
             }
-            // delete book by id
-            _bookService.DeleteBook(id);
-            return NoContent();
+            await _mediator.Send(new DeleteBookCommand() { Model = book });
+            return Ok();
         }
 
-        /// <summary>
-        /// Book created
-        /// </summary>
-        /// <param name="book"></param>
-        /// <returns></returns>
+        [SwaggerOperation(summary: "Add new entity to Book", OperationId = "InsertBook")]
         [HttpPost]
-        public IActionResult Post([FromBody] Book book)
+        public async Task<IActionResult> Post([FromBody] BookDto model)
         {
             // model is valid ?
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                model = await _mediator.Send(new AddBookingCommand() { Model = model });
+                return Ok(model);
             }
-            _bookService.CreateBook(book);
-            return CreatedAtAction("Get", new { id = book.Id }, book);
+            return BadRequest(ModelState);
         }
 
-        /// <summary>
-        /// Update created by book and book id
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="book"></param>
-        /// <returns></returns>
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Book book)
+        [SwaggerOperation(summary: "Update entity in Book", OperationId = "UpdateBook")]
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] BookDto model)
         {
             // is any valid state
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            // book get by id
-            var updatedBook = _bookService.GetBookById(book.Id);
+            var updatedBook = await _mediator.Send(new GetBookQuery() { Id = model.Id });
             if (updatedBook == null)
             {
                 return NotFound();
             }
 
-            _bookService.UpdateBook(book);
-            return NoContent();
-
-        }
-
-        /// <summary>
-        /// Filtering according to the bookname value with the extension method
-        /// </summary>
-        /// <param name="bookName"></param>
-        /// <returns></returns>
-        [HttpGet("Filter/Author/{bookName}")]
-        public IActionResult GetBookByBookName(string bookName)
-        {
-            var books = _bookService.GetAllBooks();
-            if (!books.Any())
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                model = await _mediator.Send(new UpdateBookCommand() { Model = model }); 
+                return Ok (model);
             }
-            return Ok(books.FilterByBookName(bookName));
+
+            return BadRequest(ModelState);
+            
+
         }
 
-        /// <summary>
-        /// Filtering according to the authorName value with the extension method
-        /// </summary>
-        /// <param name="authorName"></param>
-        /// <returns></returns>
-        [HttpGet("Filter/BookName/{authorName}")]
-        public IActionResult GetBookByAuthorName(string authorName)
-        {
-            var books = _bookService.GetAllBooks();
-            if (!books.Any())
-            {
-                return NotFound();
-            }
-            return Ok(books.FilterByAuthor(authorName));
-        }
+        
     }
 }
