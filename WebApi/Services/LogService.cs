@@ -12,7 +12,7 @@ namespace WebApi.Services
     {
         public async Task<Log> CreateLog(Log log)
         {
-            using (var bookDbContext = new BookDbContext())
+            using (var bookDbContext = new MyDbContext())
             {
                 bookDbContext.Logs.Add(log);
                 await bookDbContext.SaveChangesAsync();

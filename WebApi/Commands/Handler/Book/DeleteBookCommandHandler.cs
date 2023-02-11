@@ -18,7 +18,7 @@ namespace WebApi.Commands.Handler.Book
         public async Task<bool> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
             var book = await _bookService.GetBookById(request.Model.Id);
-            if (book != null)
+            if (book is not null)
             {
                 await _bookService.DeleteBook(book.Id);
             }

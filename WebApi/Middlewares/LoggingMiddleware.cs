@@ -23,7 +23,7 @@ public class LoggingMiddleware
     public async Task InvokeAsync(HttpContext httpContext)
     {
         //We create a new log to save the action to the database
-        using (var bookDbContext = new BookDbContext())
+        using (var bookDbContext = new MyDbContext())
         {
             //Create a new log
             var log = new Log

@@ -13,58 +13,61 @@ namespace WebApi.Services
     {
         public async Task<Book> CreateBook(Book book)
         {
-            using (var bookDbContext = new BookDbContext())
+            using (var myDbContext = new MyDbContext())
             {
-                bool isAnyBook = bookDbContext.Books.Any(x => x.Id == book.Id);
-                if (!isAnyBook)
-                    await bookDbContext.Books.AddAsync(book);
-                await bookDbContext.SaveChangesAsync();
+                bool isAnyBook = myDbContext.Books.Any(x => x.Id == book.Id);
+                if (isAnyBook is false)
+                    await myDbContext.Books.AddAsync(book);
+                await myDbContext.SaveChangesAsync();
                 return book;
             }
         }
 
         public async Task DeleteBook(int id)
         {
-            using (var bookDbContext = new BookDbContext())
+            using (var myDbContext = new MyDbContext())
             {
                 var deletedBook = await GetBookById(id);
-                if (deletedBook != null)
-                    bookDbContext.Books.Remove(deletedBook);
-                await bookDbContext.SaveChangesAsync();
+                if (deletedBook is not null)
+                    myDbContext.Books.Remove(deletedBook);
+                await myDbContext.SaveChangesAsync();
             }
         }
 
         public async Task<List<Book>> GetAllBooks()
         {
-            using (var bookDbContext = new BookDbContext())
+            using (var myDbContext = new MyDbContext())
             {
-                return await bookDbContext.Books.ToListAsync();
+                return await myDbContext.Books.ToListAsync();
             }
         }
 
         public async Task<Book> GetBookById(int id)
         {
-            using (var bookDbContext = new BookDbContext())
+            using (var myDbContext = new MyDbContext())
             {
-                return await bookDbContext.Books.FirstOrDefaultAsync(x => x.Id == id);
+                return await myDbContext.Books.FirstOrDefaultAsync(x => x.Id == id);
             }
         }
 
         public async Task<Book> UpdateBook(Book book)
         {
-            using (var bookDbContext = new BookDbContext())
+            using (var myDbContext = new MyDbContext())
             {
                 var updatedBook = await GetBookById(book.Id);
-                if (updatedBook != null)
+                if (updatedBook is not null)
                 {
-                    updatedBook.Author = book.Author;
-                    updatedBook.BookName = book.BookName;
+                    updatedBook.Title = book.Title;
+                    updatedBook.GenreId = book.GenreId;
                     updatedBook.PageCount = book.PageCount;
+                    updatedBook.PublishDate = book.PublishDate;
+                    updatedBook.AuthorId = book.AuthorId;
                 }
-                bookDbContext.Books.Update(updatedBook);
-                await bookDbContext.SaveChangesAsync();
+                myDbContext.Books.Update(updatedBook);
+                await myDbContext.SaveChangesAsync();
                 return updatedBook;
             }
         }
+        
     }
 }

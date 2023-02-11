@@ -22,6 +22,7 @@ using MediatR;
 using WebApi.Mapper;
 using WebApi.Dto;
 using WebApi.Models.Entity;
+using WebApi.Dtos;
 
 namespace WebApi
 {
@@ -43,12 +44,19 @@ namespace WebApi
             services.AddScoped<IBookService, BookService>();
             services.AddSingleton<ILogService, LogService>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<IAuthorService, AuthorService>();
+            services.AddScoped<IGenreService, GenreService>();
             services.AddMediatR(typeof(Startup));
             services.AddAutoMapper(typeof(AutoMapperConfig));
             var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<Book, BookDto>();
                 cfg.CreateMap<BookDto, Book>();
+                cfg.CreateMap<Author,AuthorDto>();
+                cfg.CreateMap<AuthorDto,Author>();
+                cfg.CreateMap<Genre,GenreDto>();
+                cfg.CreateMap<GenreDto, Genre>();
+                
             });
             AutoMapperConfig.Init(mapperConfig);
             services.AddSwaggerGen(c =>

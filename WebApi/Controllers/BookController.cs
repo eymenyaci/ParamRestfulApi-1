@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -12,6 +13,7 @@ using WebApi.Extensions;
 using WebApi.Interfaces;
 using WebApi.Models.Entity;
 using WebApi.Validations;
+using WebApi.Validations.Book;
 
 namespace WebApi.Controllers
 {
@@ -20,20 +22,18 @@ namespace WebApi.Controllers
     [Authorize]
     public class BookController : ControllerBase
     {
-        private readonly BookDtoValidator _validator;
         private readonly IMediator _mediator;
 
         public BookController(IMediator mediator)
         {
             _mediator = mediator;
-            _validator = new BookDtoValidator();
         }
 
         [SwaggerOperation(summary: "Get entities from Book", OperationId = "GetBooks")]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var bookList = await _mediator.Send(new GetBookListQuery());
+            var bookList = await _mediator.Send(new GetBookListCommand());
             //Is any book ?
             if (!bookList.Any())
             {
@@ -48,16 +48,17 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Get(int id)
         {
             // book get by id
-            var book = await _mediator.Send(new GetBookQuery { Id = id });
-            var validationResult = _validator.Validate(book);
-            if (!validationResult.IsValid)
+            var book = await _mediator.Send(new GetBookCommand { Id = id });
+            var validator = new AddBookValidator();
+            var result = validator.Validate(book);
+            if (!result.IsValid)
             {
-                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
                 return BadRequest(errorMessage);
             }
             if (book == null)
             {
-                return NotFound();
+                return NotFound(id);
             }
             return Ok(book);
         }
@@ -66,11 +67,12 @@ namespace WebApi.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete([FromQuery] int id)
         {
-            var book = await _mediator.Send(new GetBookQuery { Id = id });
-            var validationResult = _validator.Validate(book);
+            var book = await _mediator.Send(new GetBookCommand { Id = id });
+            var validator = new DeleteBookValidator();
+            var result = validator.Validate(book);
             if (book == null)
             {
-                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
                 return NotFound(errorMessage);
             }
             await _mediator.Send(new DeleteBookCommand() { Model = book });
@@ -80,11 +82,12 @@ namespace WebApi.Controllers
         [SwaggerOperation(summary: "Add new entity to Book", OperationId = "InsertBook")]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] BookDto model)
-        {
-            var validationResult = _validator.Validate(model);
-            if (!validationResult.IsValid)
+        {   
+            var validator = new AddBookValidator();
+            var result = validator.Validate(model);
+            if (!result.IsValid)
             {
-                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
                 return BadRequest(errorMessage);
             }
             model = await _mediator.Send(new AddBookingCommand() { Model = model });
@@ -97,16 +100,17 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Update([FromBody] BookDto model)
         {
             
-            var updatedBook = await _mediator.Send(new GetBookQuery() { Id = model.Id });
-            var validationResult = _validator.Validate(model);
+            var updatedBook = await _mediator.Send(new GetBookCommand() { Id = model.Id });
+            var validator = new UpdateBookValidator();
+            var result = validator.Validate(model);
 
             if (updatedBook == null)
             {
                 return NotFound();
             }
-            if (!validationResult.IsValid)
+            if (!result.IsValid)
             {
-                var errorMessage = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
                 return BadRequest(errorMessage);
             }
             model = await _mediator.Send(new UpdateBookCommand() { Model = model });

@@ -20,9 +20,11 @@ namespace WebApi.Commands.Handler.Book
         public async Task<BookDto> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             var book = await _bookService.GetBookById(request.Model.Id);
-            book.Author = request.Model.Author;
-            book.BookName = request.Model.BookName;
-            book.PageCount = request.Model.PageCount;
+            book.Title = book.Title;
+            book.GenreId = book.GenreId;
+            book.PageCount = book.PageCount;
+            book.PublishDate = book.PublishDate;
+            book.AuthorId = book.AuthorId;
             book = request.Model.ToEntity(book);
             await _bookService.UpdateBook(book);
 

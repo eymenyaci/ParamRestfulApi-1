@@ -8,16 +8,16 @@ using WebApi.Interfaces;
 
 namespace WebApi.Commands.Handler.Book
 {
-    public class GetBookQueryHandler : IRequestHandler<GetBookQuery, BookDto>
+    public class GetBookCommandHandler : IRequestHandler<GetBookCommand, BookDto>
     {
         private readonly IBookService _bookService;
 
-        public GetBookQueryHandler(IBookService bookService)
+        public GetBookCommandHandler(IBookService bookService)
         {
             _bookService = bookService;
         }
 
-        public async Task<BookDto> Handle(GetBookQuery request, CancellationToken cancellationToken)
+        public async Task<BookDto> Handle(GetBookCommand request, CancellationToken cancellationToken)
         {
             var book = await _bookService.GetBookById(request.Id);
             return book.ToModel();

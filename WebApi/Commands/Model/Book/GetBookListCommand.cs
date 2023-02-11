@@ -4,7 +4,7 @@ using WebApi.Dto;
 
 namespace WebApi.Commands.Model.Book
 {
-    public class GetBookListQuery : IRequest<List<BookDto>>
+    public class GetBookListCommand : IRequest<List<BookDto>>
     {
 
     }

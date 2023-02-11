@@ -5,6 +5,6 @@ namespace WebApi.Commands.Model.Book
 {
     public class UpdateBookCommand : IRequest<BookDto>
     {
-        public BookDto Model{ get; set; }
+        public BookDto Model { get; set; }
     }
 }
