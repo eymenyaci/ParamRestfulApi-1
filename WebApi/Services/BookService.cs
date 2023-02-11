@@ -68,6 +68,24 @@ namespace WebApi.Services
                 return updatedBook;
             }
         }
-        
+
+        public bool IsAnyAuthor(int authorId)
+        {
+            using (var myDbContext = new MyDbContext())
+            {
+                bool isAnyAuthor = myDbContext.Books.Any(x => x.AuthorId == authorId);
+                return isAnyAuthor;
+            }
+        }
+
+        public bool IsAnyGenre(int genreId)
+        {
+            using (var myDbContext = new MyDbContext())
+            {
+                bool isAnyGenre = myDbContext.Books.Any(x => x.GenreId == genreId);
+                return isAnyGenre;
+            }
+        }
+
     }
 }

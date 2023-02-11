@@ -11,5 +11,6 @@ namespace WebApi.Interfaces
         Task<Author> CreateAuthor(Author author);
         Task<Author> UpdateAuthor(Author author);
         Task DeleteAuthor(int id);
+        bool IsAnyAuthor(int id);
     }
 }

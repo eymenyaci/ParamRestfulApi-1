@@ -11,5 +11,7 @@ namespace WebApi.Interfaces
         Task<Genre> CreateGenre(Genre genre);
         Task<Genre> UpdateGenre(Genre genre);
         Task DeleteGenre(int id);
+
+        bool IsAnyGenre(int id);
     }
 }

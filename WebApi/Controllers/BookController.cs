@@ -90,7 +90,7 @@ namespace WebApi.Controllers
                 var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
                 return BadRequest(errorMessage);
             }
-            model = await _mediator.Send(new AddBookingCommand() { Model = model });
+            model = await _mediator.Send(new AddBookCommand() { Model = model });
             return Ok(model);
 
         }

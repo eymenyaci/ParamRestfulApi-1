@@ -65,5 +65,13 @@ namespace WebApi.Services
                 return updatedAuthor;
             }
         }
+
+        public bool IsAnyAuthor(int id)
+        {
+            using (var myDbContext = new MyDbContext())
+            {
+                return myDbContext.Authors.Any(x => x.Id == id);
+            }
+        }
     }
 }

@@ -64,5 +64,13 @@ namespace WebApi.Services
                 return updatedGenre;
             }
         }
+
+        public bool IsAnyGenre(int id)
+        {
+            using (var myDbContext = new MyDbContext())
+            {
+                return myDbContext.Genres.Any(x => x.Id == id);
+            }
+        }
     }
 }

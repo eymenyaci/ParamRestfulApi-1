@@ -1,4 +1,7 @@
 ﻿using MediatR;
+using Microsoft.OpenApi.Any;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WebApi.Commands.Model.Author;
@@ -10,19 +13,29 @@ namespace WebApi.Commands.Handler.Author
     public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand, bool>
     {
         private readonly IAuthorService _authorService;
+        private readonly IBookService _bookService;
 
-        public DeleteAuthorCommandHandler(IAuthorService authorService)
+        public DeleteAuthorCommandHandler(IAuthorService authorService, IBookService bookService)
         {
             _authorService = authorService;
+            _bookService = bookService;
         }
 
         public async Task<bool> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
         {
             var author = await _authorService.GetAuthorById(request.Model.Id);
-            if (author is not null)
+            bool isAnyBook = _bookService.IsAnyAuthor(request.Model.Id);
+
+            if (author is not null && isAnyBook is false)
             {
                 await _authorService.DeleteAuthor(author.Id);
             }
+            
+            if (author is null)
+                throw new ArgumentException("Author not found");
+
+            if (isAnyBook is true)
+                throw new InvalidOperationException("The author cannot be deleted as they have books associated with them");
 
             return true;
         }
