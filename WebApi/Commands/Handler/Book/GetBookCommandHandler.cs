@@ -19,6 +19,21 @@ namespace WebApi.Commands.Handler.Book
 
         public async Task<BookDto> Handle(GetBookCommand request, CancellationToken cancellationToken)
         {
+            if (request.IdType == "Author")
+            {
+                //Get author id
+                var authorByBook = await _bookService.GetBookByAuthorId(request.Id);
+                if (authorByBook != null)
+                    return authorByBook.ToModel();
+            }
+            if (request.IdType == "Genre")
+            {
+                //Get genre id
+                var genreByBook = await _bookService.GetBookByGenreId(request.Id);
+                if (genreByBook != null)
+                    return genreByBook.ToModel();
+            }
+           
             var book = await _bookService.GetBookById(request.Id);
             return book.ToModel();
         }

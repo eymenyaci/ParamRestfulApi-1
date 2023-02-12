@@ -24,9 +24,9 @@ namespace WebApi.Commands.Handler.Author
         public async Task<bool> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
         {
             var author = await _authorService.GetAuthorById(request.Model.Id);
-            bool isAnyBook = _bookService.IsAnyAuthor(request.Model.Id);
+            var isAnyBook = _bookService.GetBookByAuthorId(request.Model.Id);
 
-            if (author is not null && isAnyBook is false)
+            if (author is not null && isAnyBook is not null)
             {
                 await _authorService.DeleteAuthor(author.Id);
             }
@@ -34,7 +34,7 @@ namespace WebApi.Commands.Handler.Author
             if (author is null)
                 throw new ArgumentException("Author not found");
 
-            if (isAnyBook is true)
+            if (isAnyBook is not null)
                 throw new InvalidOperationException("The author cannot be deleted as they have books associated with them");
 
             return true;

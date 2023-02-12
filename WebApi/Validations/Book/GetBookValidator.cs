@@ -8,8 +8,8 @@ namespace WebApi.Validations.Book
         public GetBookValidator()
         {
             RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Id is required.")
-            .GreaterThan(0).WithMessage("Id must be greater than 0.");
+            .GreaterThan(0).WithMessage("Id must be greater than 0.")
+            .NotEqual(0).WithMessage("Id cannot be 0.");
         }
     }
 }

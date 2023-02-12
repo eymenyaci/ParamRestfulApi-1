@@ -23,15 +23,15 @@ namespace WebApi.Commands.Handler.Genre
         public async Task<bool> Handle(DeleteGenreCommand request, CancellationToken cancellationToken)
         {
             var genre = await _genreService.GetGenreById(request.Model.Id);
-            bool isAnyGenre = _bookService.IsAnyGenre(request.Model.Id);
-            if (genre is not null && isAnyGenre is false)
+            var isAnyGenre = _bookService.GetBookByGenreId(request.Model.Id);
+            if (genre is not null && isAnyGenre is not null)
             {
                 await _genreService.DeleteGenre(genre.Id);
             }
             if (genre is null)
                 throw new ArgumentException("Genre not found");
 
-            if (isAnyGenre is true)
+            if (isAnyGenre is not null)
                 throw new InvalidOperationException("The genre cannot be deleted as they have books associated with them");
 
             return true;

@@ -13,8 +13,8 @@ namespace WebApi.Interfaces
         Task<Book> CreateBook(Book book);
         Task<Book> UpdateBook(Book book);
         Task DeleteBook(int id);
-        bool IsAnyAuthor (int authorId);
-        bool IsAnyGenre (int genreId);
+        Task<Book> GetBookByAuthorId (int authorId);
+        Task<Book> GetBookByGenreId (int genreId);
 
     }
 }

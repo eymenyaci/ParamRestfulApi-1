@@ -46,17 +46,16 @@ namespace WebApi.Controllers
         {
             // genre get by id
             var genre = await _mediator.Send(new GetGenreCommand { Id = id });
-            var validator = new GetGenreValidator();
-            var result = validator.Validate(genre);
-            if (!result.IsValid)
-            {
-                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
-                return BadRequest(errorMessage);
-            }
-            if (genre is null)
+            if (genre is null && id != 0)
             {
                 return NotFound(id);
             }
+            
+            if (id == 0)
+            {
+                return BadRequest("Id cannot be 0.");
+            }
+
             return Ok(genre);
         }
 
@@ -65,13 +64,21 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Delete([FromQuery] int id)
         {
             var genre = await _mediator.Send(new GetGenreCommand { Id = id });
-            var validator = new DeleteGenreValidator();
-            var result = validator.Validate(genre);
-            if (genre is null)
+            if (genre is null && id != 0)
             {
-                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
-                return NotFound(errorMessage);
+                return NotFound();
             }
+            if (id == 0)
+            {
+                return BadRequest("Id cannot be 0.");
+            }
+
+            var book = await _mediator.Send(new GetBookCommand { Id = id ,IdType = "Genre"});
+            if (book is not null)
+            {
+                return BadRequest("The genre cannot be deleted as they have books associated with them");
+            }
+            
             await _mediator.Send(new DeleteGenreCommand() { Model = genre });
             return Ok();
         }
@@ -96,20 +103,21 @@ namespace WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] GenreDto model)
         {
-
-            var updatedGenre = await _mediator.Send(new GetGenreCommand() { Id = model.Id });
             var validator = new UpdateGenreValidator();
             var result = validator.Validate(model);
-
-            if (updatedGenre is null)
-            {
-                return NotFound();
-            }
             if (!result.IsValid)
             {
                 var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
                 return BadRequest(errorMessage);
             }
+
+            var genre = await _mediator.Send(new GetGenreCommand() { Id = model.Id });
+            if (genre is null)
+            {
+                return NotFound();
+            }
+
+            
             model = await _mediator.Send(new UpdateGenreCommand() { Model = model });
             return Ok(model);
 

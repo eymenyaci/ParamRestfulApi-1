@@ -46,17 +46,17 @@ namespace WebApi.Controllers
         {
             // author get by id
             var author = await _mediator.Send(new GetAuthorCommand { Id = id });
-            var validator = new GetAuthorValidator();
-            var result = validator.Validate(author);
-            if (!result.IsValid)
-            {
-                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
-                return BadRequest(errorMessage);
-            }
-            if (author is null)
+
+            if (author is null && id != 0)
             {
                 return NotFound(id);
+
             }
+            if (id == 0)
+            {
+                return BadRequest("Id cannot be 0.");
+            }
+
             return Ok(author);
         }
 
@@ -65,12 +65,21 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Delete([FromQuery] int id)
         {
             var author = await _mediator.Send(new GetAuthorCommand { Id = id });
-            var validator = new DeleteAuthorValidator();
-            var result = validator.Validate(author);
-            if (author is null)
+
+            if (author is null && id != 0)
             {
-                var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
-                return NotFound(errorMessage);
+                return NotFound("Not Found " + id + " value");
+            }
+
+            if (id == 0)
+            {
+                return BadRequest("Id cannot be 0.");
+            }
+
+            var book = await _mediator.Send(new GetBookCommand { Id = id, IdType = "Author" });
+            if (book is not null)
+            {
+                return BadRequest("The author cannot be deleted as they have books associated with them");
             }
             await _mediator.Send(new DeleteAuthorCommand() { Model = author });
             return Ok();
@@ -96,20 +105,20 @@ namespace WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] AuthorDto model)
         {
-
-            var updatedBook = await _mediator.Send(new GetBookCommand() { Id = model.Id });
             var validator = new UpdateAuthorValidator();
             var result = validator.Validate(model);
-
-            if (updatedBook is null)
-            {
-                return NotFound();
-            }
             if (!result.IsValid)
             {
                 var errorMessage = string.Join(", ", result.Errors.Select(x => x.ErrorMessage));
                 return BadRequest(errorMessage);
             }
+
+            var author = await _mediator.Send(new GetAuthorCommand() { Id = model.Id });
+            if (author is null)
+            {
+                return NotFound();
+            }
+            
             model = await _mediator.Send(new UpdateAuthorCommand() { Model = model });
             return Ok(model);
 

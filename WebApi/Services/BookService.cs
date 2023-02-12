@@ -69,21 +69,21 @@ namespace WebApi.Services
             }
         }
 
-        public bool IsAnyAuthor(int authorId)
+        public async Task<Book> GetBookByAuthorId(int authorId)
         {
             using (var myDbContext = new MyDbContext())
             {
-                bool isAnyAuthor = myDbContext.Books.Any(x => x.AuthorId == authorId);
-                return isAnyAuthor;
+                var book = await myDbContext.Books.FirstOrDefaultAsync(x => x.AuthorId == authorId);
+                return book;
             }
         }
 
-        public bool IsAnyGenre(int genreId)
+        public async Task<Book> GetBookByGenreId(int genreId)
         {
             using (var myDbContext = new MyDbContext())
             {
-                bool isAnyGenre = myDbContext.Books.Any(x => x.GenreId == genreId);
-                return isAnyGenre;
+                var book = await myDbContext.Books.FirstOrDefaultAsync(x => x.GenreId == genreId);
+                return book;
             }
         }
 
