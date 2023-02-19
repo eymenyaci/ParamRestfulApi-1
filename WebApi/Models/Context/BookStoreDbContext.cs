@@ -1,20 +1,26 @@
+using BookStore.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using WebApi.Models.Entity;
 
 namespace WebApi.Models.Context
 {
-    public class MyDbContext : DbContext
+    public class BookStoreDbContext : DbContext,IBookStoreDbContext
     {
+        public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options) : base(options)
+        {
+        }
+
         public DbSet<Log> Logs { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Author> Authors{ get; set; }
-        
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+
+        public override int SaveChanges()
         {
-            optionsBuilder.UseSqlServer("Server=DESKTOP-JFVV9NF;Database=BookDB;User Id=sa;Password=eymen123");
+            return base.SaveChanges();
         }
+
 
     }
 

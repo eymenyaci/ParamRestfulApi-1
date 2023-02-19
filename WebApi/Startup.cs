@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using Microsoft.OpenApi.Models;
@@ -23,6 +22,8 @@ using WebApi.Mapper;
 using WebApi.Dto;
 using WebApi.Models.Entity;
 using WebApi.Dtos;
+using BookStore.Api.Interfaces;
+using WebApi.Models.Context;
 
 namespace WebApi
 {
@@ -41,11 +42,13 @@ namespace WebApi
         {
 
             services.AddControllers();
+            services.AddDbContext<BookStoreDbContext>(options => options.UseInMemoryDatabase(databaseName : "BookStoreDB"));
             services.AddScoped<IBookService, BookService>();
-            services.AddSingleton<ILogService, LogService>();
+            //services.AddScoped<ILogService, LogService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IAuthorService, AuthorService>();
             services.AddScoped<IGenreService, GenreService>();
+            services.AddScoped<IBookStoreDbContext, BookStoreDbContext>();
             services.AddMediatR(typeof(Startup));
             services.AddAutoMapper(typeof(AutoMapperConfig));
             var mapperConfig = new MapperConfiguration(cfg =>

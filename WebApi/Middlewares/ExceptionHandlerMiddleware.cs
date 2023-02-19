@@ -13,13 +13,12 @@ namespace WebApi.Middlewares
     {
         private readonly RequestDelegate next;
         private readonly ILogger<ExceptionHandlerMiddleware> logger;
-        private readonly ILogService _logService;
 
-        public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger, ILogService logService)
+        public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger)
         {
             this.next = next;
             this.logger = logger;
-            _logService = logService;
+            
         }
 
         public async Task Invoke(HttpContext httpContext)

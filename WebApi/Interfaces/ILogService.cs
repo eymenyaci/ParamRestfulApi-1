@@ -8,6 +8,6 @@ namespace WebApi.Interfaces
 {
     public interface ILogService
     {
-        Task<Log> CreateLog(Log log);
+        Log CreateLog(Log log);
     }
 }

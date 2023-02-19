@@ -7,33 +7,25 @@ using WebApi;
 using WebApi.Models.Context;
 using WebApi.Models.Entity;
 using WebApi.Interfaces;
+using BookStore.Api.Interfaces;
 
 public class LoggingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogService _logService;
+    
 
-
-    public LoggingMiddleware(RequestDelegate next, ILogService logService)
+    public LoggingMiddleware(RequestDelegate next)
     {
         _next = next;
-        _logService = logService;
+        
+
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        //We create a new log to save the action to the database
-        using (var bookDbContext = new MyDbContext())
-        {
-            //Create a new log
-            var log = new Log
-            {   
-                text = $"Action Invoked : {httpContext.Request.Path}",
-                dateTime = DateTime.UtcNow
-            };
-            //Send it to the database by log service
-            await _logService.CreateLog(log);
-        }
+        
+        //Create a new log
+        Console.WriteLine($"{DateTime.UtcNow} Action Invoked : {httpContext.Request.Path}");
 
         await _next(httpContext);
     }

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BookStore.Api.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,68 +12,80 @@ namespace WebApi.Services
 {
     public class AuthorService : IAuthorService
     {
+        private IBookStoreDbContext _bookStoreDbContext;
+
+        public AuthorService(IBookStoreDbContext bookStoreDbContext)
+        {
+            _bookStoreDbContext = bookStoreDbContext;
+        }
+
         public async Task<Author> CreateAuthor(Author author)
         {
-            using (var myDbContext = new MyDbContext())
-            {
-                bool isAnyAuthor = myDbContext.Authors.Any(x => x.Id == author.Id);
-                if (isAnyAuthor is false)
-                    await myDbContext.Authors.AddAsync(author);
-                await myDbContext.SaveChangesAsync();
-                return author;
-            }
+            bool isAnyAuthor = _bookStoreDbContext.Authors.Any(x => x.Name == author.Name && x.Surname == author.Surname);
+            if (isAnyAuthor is false)
+                await _bookStoreDbContext.Authors.AddAsync(author);
+            else
+                throw new InvalidOperationException("Author Already Available!");
+            _bookStoreDbContext.SaveChanges();
+            return author;
         }
 
         public async Task DeleteAuthor(int id)
         {
-            using (var myDbContext = new MyDbContext())
+            if (id == 0)
             {
-                var deletedAuthor = await GetAuthorById(id);
-                if (deletedAuthor is not null)
-                    myDbContext.Authors.Remove(deletedAuthor);
-                await myDbContext.SaveChangesAsync();
+                throw new InvalidOperationException("Id value cannot be zero");
             }
+            var deletedAuthor = await GetAuthorById(id);
+            if (deletedAuthor is not null)
+                _bookStoreDbContext.Authors.Remove(deletedAuthor);
+            else
+                throw new ArgumentNullException("Author Already Available!");
+            _bookStoreDbContext.SaveChanges();
         }
 
         public async Task<List<Author>> GetAllAuthors()
         {
-            using (var myDbContext = new MyDbContext())
-            {
-                return await myDbContext.Authors.ToListAsync();
-            }
+            if (_bookStoreDbContext.Authors is null)
+                throw new ArgumentNullException("Not Found Authors");
+            return await _bookStoreDbContext.Authors.ToListAsync();
         }
 
         public async Task<Author> GetAuthorById(int id)
         {
-            using (var myDbContext = new MyDbContext())
-            {
-                return await myDbContext.Authors.FirstOrDefaultAsync(x => x.Id == id);
-            }
+            if (id == 0)
+                throw new InvalidOperationException("Id value cannot be zero");
+            var author = await _bookStoreDbContext.Authors.FirstOrDefaultAsync(x => x.Id == id);
+            if (author is not null)
+                await _bookStoreDbContext.Authors.FirstOrDefaultAsync(x => x.Id == id);
+            else throw new ArgumentNullException("Author Already Available!");
+
+            return author;
         }
 
         public async Task<Author> UpdateAuthor(Author author)
         {
-            using (var myDbContext = new MyDbContext())
+            var updatedAuthor = await GetAuthorById(author.Id);
+            if (author.Id == 0)
+                throw new InvalidOperationException("Id value cannot be zero");
+            if (updatedAuthor is not null)
             {
-                var updatedAuthor = await GetAuthorById(author.Id);
-                if (updatedAuthor is not null)
-                {
-                    updatedAuthor.Name = author.Name;
-                    updatedAuthor.Surname = author.Surname;
-                    updatedAuthor.DateOfBirth = author.DateOfBirth;
-                }
-                myDbContext.Authors.Update(updatedAuthor);
-                await myDbContext.SaveChangesAsync();
-                return updatedAuthor;
+                updatedAuthor.Name = author.Name;
+                updatedAuthor.Surname = author.Surname;
+                updatedAuthor.DateOfBirth = author.DateOfBirth;
             }
+            else throw new ArgumentNullException("Author Already Available!");
+            _bookStoreDbContext.Authors.Update(updatedAuthor);
+            _bookStoreDbContext.SaveChanges();
+            return updatedAuthor;
         }
 
         public bool IsAnyAuthor(int id)
         {
-            using (var myDbContext = new MyDbContext())
-            {
-                return myDbContext.Authors.Any(x => x.Id == id);
-            }
+            if (id == 0)
+                throw new InvalidOperationException("id not equal 0");
+
+            return _bookStoreDbContext.Authors.Any(x => x.Id == id);
         }
     }
 }

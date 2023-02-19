@@ -1,3 +1,4 @@
+using BookStore.Api.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +11,18 @@ namespace WebApi.Services
 {
     public class LogService : ILogService
     {
-        public async Task<Log> CreateLog(Log log)
+        private readonly IBookStoreDbContext _bookStoreDbContext;
+
+        public LogService(IBookStoreDbContext bookStoreDbContext)
         {
-            using (var bookDbContext = new MyDbContext())
-            {
-                bookDbContext.Logs.Add(log);
-                await bookDbContext.SaveChangesAsync();
-                return log;
-            }
+            _bookStoreDbContext = bookStoreDbContext;
+        }
+
+        public Log CreateLog(Log log)
+        {
+            _bookStoreDbContext.Logs.Add(log);
+            _bookStoreDbContext.SaveChanges();
+            return log;
         }
     }
 }
